@@ -57,6 +57,12 @@ details summary{cursor:pointer;font-weight:600}details p,details li{font-size:14
 .mi{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);margin-top:8px;gap:8px}
 .mi button{padding:6px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:13px}
 nav{z-index:2000}
+.rc{position:relative;touch-action:pan-y}.rc svg{width:100%;height:auto;display:block}
+.tip{position:absolute;top:0;transform:translateX(-50%);background:var(--tx);color:var(--card);border-radius:8px;padding:4px 10px;font-size:12px;text-align:center;pointer-events:none;white-space:nowrap;display:none}
+.hrs{display:flex;overflow-x:auto;padding-bottom:6px}
+.hc{flex:0 0 auto;min-width:74px;text-align:center;padding:2px 8px;border-left:1px solid var(--bd);font-size:14px}
+.hc:first-child{border-left:0}.hc b{display:block;margin-bottom:8px}.hc .wi{font-size:32px;line-height:1.2;margin-bottom:8px}
+.hc div{margin:6px 0}.hc .pm{color:var(--mut)}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 </head>
@@ -68,9 +74,11 @@ nav{z-index:2000}
 </div>
 <main>
  <div class="card" id="err" hidden><b>Weerdata niet beschikbaar</b><p style="color:var(--mut);font-size:14px" id="errt"></p><button onclick="load()" style="padding:10px 16px;border-radius:10px;border:0;background:var(--pri);color:#fff;font:inherit;font-weight:600">Opnieuw proberen</button></div>
- <div class="card"><h2>Regen komende 2 uur</h2><div class="chart" id="chart"></div><div class="axis" id="axis"></div>
-  <div class="legend"><span><i style="background:var(--bar)"></i>Droog</span><span><i style="background:var(--wet)"></i>Licht/matig</span><span><i style="background:var(--hv)"></i>Zwaar</span></div>
+ <div class="card"><h2>Regen komende 3 uur</h2><div class="rc" id="rc"></div>
   <p id="sub" style="margin:10px 0 0;font-weight:600"></p></div>
+
+ <div class="card"><h2 id="hct">Komende uren</h2><div class="hrs" id="hrs"></div></div>
+
 
  <div class="card"><h2>Regenradar en wolken</h2>
  <div class="mt"><button id="mR" class="on">🌧️ Regen</button><button id="mC">☁️ Wolken</button></div>
@@ -105,13 +113,16 @@ async function load(){
   try{
     const [la,lo]=P[city];
     const c=new AbortController();setTimeout(()=>c.abort(),8000);
-    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,wind_speed_10m,wind_gusts_10m&minutely_15=precipitation&forecast_minutely_15=16&timezone=Europe%2FAmsterdam`,{signal:c.signal});
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,wind_speed_10m,wind_gusts_10m&minutely_15=precipitation&forecast_minutely_15=20&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,is_day&forecast_hours=14&timezone=Europe%2FAmsterdam`,{signal:c.signal});
     if(!r.ok)throw 0;
     const j=await r.json(),t=j.minutely_15.time;let s=0;
     for(let i=0;i<t.length;i++)if(t[i]<=j.current.time)s=i;
-    const ix=[0,1,2,3,4,5,6,7].map(k=>s+k).filter(i=>i<t.length);
+    const ix=[...Array(13).keys()].map(k=>s+k).filter(i=>i<t.length);
+    const pr=ix.map(i=>Math.round((j.minutely_15.precipitation[i]||0)*40)/10);
+    const hs=j.hourly;let hi=hs.time.findIndex(x=>x>=j.current.time.slice(0,13)+":00");if(hi<0)hi=0;
+    const hr=[...Array(12).keys()].map(k=>hi+k).filter(i=>i+1<hs.time.length).map(i=>({t:hs.time[i].slice(11,16),temp:Math.round(hs.temperature_2m[i]),p:hs.precipitation[i+1]||0,c:hs.weather_code[i],day:hs.is_day[i],ws:hs.wind_speed_10m[i],wd:hs.wind_direction_10m[i]}));
     data={t:Math.round(j.current.temperature_2m),w:Math.round(j.current.wind_speed_10m),g:Math.round(j.current.wind_gusts_10m),
-      d:ix.map(i=>Math.round((j.minutely_15.precipitation[i]||0)*40)/10),lab:ix.map(i=>t[i].slice(11,16)),time:j.current.time.slice(11,16)};
+      d:pr.slice(0,8),c:pr,lab:ix.map(i=>t[i].slice(11,16)),h:hr,off:Math.max(0,Math.min(15,(new Date(j.current.time)-new Date(t[ix[0]]))/60000)),time:j.current.time.slice(11,16)};
     $("err").hidden=true;render();
   }catch(e){data=null;$("badge").textContent="OFFLINE";$("badge").className="badge";$("err").hidden=false;$("errt").textContent="Geen verbinding met de weerdienst. Controleer je internet en probeer opnieuw."+(e&&e.message?" ("+e.message+")":"");}
 }
@@ -124,8 +135,7 @@ function render(){
   else if(max>=.1){ico="🌦️";h="Bui op komst";sub="Regen over ca. "+D.d.findIndex(v=>v>=.1)*15+" minuten.";}
   else if(feel<7){ico="🥶";h="Droog en koud"}
   $("ico").textContent=ico;$("h1").textContent=h;$("sub").textContent=sub;
-  $("chart").innerHTML=D.d.map(v=>`<div class="bar ${v>=4?"h":v>=.1?"w":""}" style="height:${Math.max(5,Math.min(100,v/5*100))}%"></div>`).join("");
-  $("axis").innerHTML=D.lab.map(x=>`<span>${x}</span>`).join("");
+  drawChart(D);drawHours(D);
   // tegels
   const rain=[["😎","Geen regenkleding","Het blijft droog."],["🧥","Waterafstotende jas","Voldoende bij lichte regen."],["☔","Regenjas + regenbroek","Bij matige regen ben je snel nat."],["⛈️","Compleet regenpak","Met overschoenen. Schuilen bij zware bui."]][L];
   let g,gt;
@@ -150,6 +160,36 @@ function render(){
   $("foot").textContent=`${city}, bijgewerkt ${D.time}. Bron: Open-Meteo (KNMI-model).`;
 }
 $("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;city=b.textContent;[...$("nav").children].forEach(x=>x.classList.toggle("on",x===b));if(map){map.setView(P[city],7);mk.setLatLng(P[city])}load()};
+
+// ===== GRAFIEK EN UREN =====
+const fx=v=>String(v.toFixed(1)).replace(".",",");
+function drawChart(D){
+  const c=D.c,n=c.length,W=640,H=176,L0=62,R0=10,T=22,B=28,pw=W-L0-R0,ph=H-T-B;
+  const X=i=>L0+pw*i/(n-1),Y=v=>T+ph*(1-Math.min(1,Math.sqrt(v/10)));
+  let g=[[1,"Licht"],[4,"Matig"],[8,"Zwaar"]].map(([v,l])=>`<line x1="${L0}" x2="${W-R0}" y1="${Y(v)}" y2="${Y(v)}" style="stroke:var(--bd)"/><text x="${L0-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" style="fill:var(--mut)">${l}</text>`).join("");
+  g+=`<polygon points="${X(0)},${Y(0)} ${c.map((v,i)=>X(i)+","+Y(v)).join(" ")} ${X(n-1)},${Y(0)}" style="fill:var(--wet)" opacity=".8"/>`;
+  g+=`<line x1="${L0}" x2="${W-R0}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--mut)"/>`;
+  g+=D.lab.map((l,i)=>i%4===0?`<text x="${X(i)}" y="${H-8}" text-anchor="${i===0?"start":"middle"}" font-size="12" style="fill:var(--tx)">${l}</text>`:"").join("");
+  const nx=X(D.off/15);
+  g+=`<line x1="${nx}" x2="${nx}" y1="${T}" y2="${Y(0)}" stroke-dasharray="3 3" style="stroke:var(--tx)"/><text x="${nx}" y="${T-6}" text-anchor="middle" font-size="12" style="fill:var(--tx)">Nu</text>`;
+  g+=`<line id="cur" y1="${T}" y2="${Y(0)}" stroke-width="2" style="stroke:var(--tx)" visibility="hidden"/><rect id="hit" x="${L0}" y="0" width="${pw}" height="${H}" fill="transparent"/>`;
+  $("rc").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg><div class="tip" id="tip"></div>`;
+  const svg=$("rc").querySelector("svg"),cur=$("cur"),tip=$("tip");
+  const mv=e=>{const r=svg.getBoundingClientRect(),vx=(e.clientX-r.left)/r.width*W;
+    const i=Math.max(0,Math.min(n-1,Math.round((vx-L0)/pw*(n-1))));
+    cur.setAttribute("x1",X(i));cur.setAttribute("x2",X(i));cur.setAttribute("visibility","visible");
+    tip.style.display="block";tip.style.left=(X(i)/W*100)+"%";tip.innerHTML=`<b>${D.lab[i]}</b><br>${fx(c[i])} mm/u`};
+  const lv=()=>{cur.setAttribute("visibility","hidden");tip.style.display="none"};
+  $("hit").onpointermove=mv;$("hit").onpointerdown=mv;$("hit").onpointerleave=lv;
+}
+function wic(c,d){if(c===0)return d?"☀️":"🌙";if(c===1)return d?"🌤️":"🌙";if(c===2)return d?"⛅":"☁️";if(c===3)return"☁️";if(c<=48)return"🌫️";if(c<=57)return"🌦️";if(c<=67)return"🌧️";if(c<=77)return"🌨️";if(c<=82)return c===80?"🌦️":"🌧️";if(c<=86)return"🌨️";return"⛈️"}
+function drawHours(D){
+  $("hct").textContent="Komende uren in "+city;
+  const dr=["N","NO","O","ZO","Z","ZW","W","NW"];
+  $("hrs").innerHTML=D.h.map((x,i)=>{
+    const bf=[1,6,12,20,29,39,50,62,75,89,103,118].filter(k=>x.ws>=k).length;
+    return `<div class="hc"><b>${i===0?"Nu":x.t}</b><div class="wi">${wic(x.c,x.day)}</div><div>${x.temp}°C</div><div>${dr[Math.round(x.wd/45)%8]}${bf}</div><div class="pm">${fx(x.p)} mm</div></div>`}).join("");
+}
 
 // ===== KAART =====
 const CLOUD_LAYER="dwd:Satellite_meteosat_1km_euat_rgb_day_hrv_and_night_ir108_3h"; // wolkenlaag (DWD Meteosat), pas aan indien nodig
