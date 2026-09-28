@@ -44,6 +44,24 @@ h1{font-size:21px;margin:0}.brand small{display:block;color:var(--muted);margin-
 .day b{font-size:12px}.day .wi{font-size:23px;margin:8px 0}.day strong{font-size:13px}.day small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
 .loading{color:var(--muted)}.status{font-size:12px;color:var(--muted);margin-top:12px;min-height:18px}.error{color:#ff9aa4}
 .footer{margin-top:18px;color:var(--muted);font-size:11px;text-align:center}
+
+.advice-wrap{margin-top:18px}
+.advice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.advice-card{background:linear-gradient(145deg,#10243a,#0c1929);border:1px solid var(--line);border-radius:15px;padding:15px}
+.advice-card.alert{border-color:#5b4550}
+.advice-head{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.advice-icon{font-size:25px}.advice-head b{font-size:14px}
+.advice-main{font-size:19px;font-weight:800;margin:4px 0 7px}
+.advice-text{font-size:12px;line-height:1.5;color:var(--muted)}
+.layers{display:flex;gap:5px;margin:10px 0 7px}
+.layer{height:8px;flex:1;border-radius:99px;background:#1e3047}
+.layer.on{background:var(--accent)}
+.warning-status{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#091522;border:1px solid #1d3048;margin-top:12px}
+.warning-badge{font-weight:850;font-size:13px;padding:6px 9px;border-radius:8px;background:#173047}
+.warning-copy{font-size:12px;line-height:1.4}.warning-copy strong{display:block;font-size:13px}
+.warning-link{margin-left:auto;white-space:nowrap}
+@media(max-width:850px){.advice-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.advice-grid{grid-template-columns:1fr}.warning-status{align-items:flex-start;flex-wrap:wrap}.warning-link{margin-left:0;width:100%}}
 @media(max-width:850px){.app{padding:16px}.grid{grid-template-columns:1fr}.hourly{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:560px){.app{padding:12px}.location-buttons{grid-template-columns:1fr}.card{padding:14px}.temp{font-size:48px}.weather-icon{font-size:46px}.hourly{display:flex;overflow-x:auto;padding-bottom:3px}.hour{min-width:76px}.daily{display:flex;overflow-x:auto;padding-bottom:3px}.day{min-width:82px}}
 </style>
@@ -92,6 +110,34 @@ h1{font-size:21px;margin:0}.brand small{display:block;color:var(--muted);margin-
 </section>
 </main>
 
+
+<section class="card advice-wrap">
+  <div class="section-title">Postbode advies</div>
+  <div class="advice-grid">
+    <div class="advice-card">
+      <div class="advice-head"><span class="advice-icon">🧥</span><b>Kleding & lagen</b></div>
+      <div class="advice-main" id="layersTitle">Advies laden…</div>
+      <div class="layers" id="layerBars" aria-label="Aantal kledinglagen"></div>
+      <div class="advice-text" id="layersText">Op basis van de gevoelstemperatuur, wind en het actuele weer.</div>
+    </div>
+    <div class="advice-card">
+      <div class="advice-head"><span class="advice-icon">☀️</span><b>UV & warmte</b></div>
+      <div class="advice-main" id="uvTitle">UV laden…</div>
+      <div class="advice-text" id="uvText">UV-advies wordt opgehaald.</div>
+    </div>
+    <div class="advice-card">
+      <div class="advice-head"><span class="advice-icon">🌧️</span><b>Onderweg</b></div>
+      <div class="advice-main" id="routeTitle">Advies laden…</div>
+      <div class="advice-text" id="routeText">Praktisch advies voor je bezorgronde.</div>
+    </div>
+  </div>
+  <div class="warning-status" id="warningStatus">
+    <span class="warning-badge" id="warningBadge">KNMI</span>
+    <div class="warning-copy" id="warningText"><strong>Officiële weerwaarschuwing</strong>Controleer de actuele KNMI-waarschuwing voor Friesland.</div>
+    <a class="btn warning-link" id="warningLink" href="https://www.knmi.nl/nederland-nu/weer/waarschuwingen/friesland" target="_blank" rel="noopener">KNMI waarschuwingen ↗</a>
+  </div>
+</section>
+
 <div class="footer">Weerdata via Open-Meteo · Alleen Leeuwarden, Drachten en Heerenveen · Automatisch vernieuwen elke 10 minuten</div>
 </div>
 
@@ -137,6 +183,61 @@ function setStatus(message, error=false){
   $('status').className='status' + (error?' error':'');
 }
 
+
+function renderLayers(feels, wind, precip){
+  let layers, title, text;
+  if(feels <= -5){ layers=4; title='4 lagen'; text='Thermolaag + warme tussenlaag + isolerende jas + winddichte buitenlaag. Handschoenen en muts zijn verstandig.'; }
+  else if(feels <= 2){ layers=3; title='3 lagen'; text='Thermolaag + warme trui/fleece + wind- en waterdichte jas. Handschoenen kunnen prettig zijn.'; }
+  else if(feels <= 8){ layers=3; title='3 lagen'; text='Thermoshirt + trui/fleece + wind- of regenjas. Bij veel wind voelt het kouder aan.'; }
+  else if(feels <= 14){ layers=2; title='2 lagen'; text='Lange basislaag met een jas. Neem een regenlaag mee als er neerslag wordt verwacht.'; }
+  else if(feels <= 20){ layers=2; title='1–2 lagen'; text='Lichte basislaag en een jas voor de ochtend/wind. Pas aan als je veel fietst of loopt.'; }
+  else if(feels <= 25){ layers=1; title='1 lichte laag'; text='Lichte, ademende kleding. Bij zon: pet/zonnebril en zonnebrand.'; }
+  else { layers=1; title='1 zeer lichte laag'; text='Draag luchtige, ademende kleding. Zoek schaduw bij pauzes en drink regelmatig.'; }
+  $('layersTitle').textContent=title;
+  $('layerBars').innerHTML=Array.from({length:4},(_,i)=>`<span class="layer ${i<layers?'on':''}"></span>`).join('');
+  $('layersText').textContent=text;
+}
+
+function renderUV(uv, temp){
+  uv=Number.isFinite(Number(uv))?Number(uv):0;
+  let level='laag', text='Weinig UV-risico. Bij langere tijd buiten is normale bescherming voldoende.';
+  if(uv>=3 && uv<6){level='matig';text='Bescherm onbedekte huid bij langere blootstelling: zonnebrand en eventueel pet/zonnebril.';}
+  else if(uv>=6 && uv<8){level='hoog';text='Gebruik zonnebrand, draag een pet/zonnebril en zoek rond het midden van de dag vaker schaduw.';}
+  else if(uv>=8 && uv<11){level='zeer hoog';text='Sterke UV. Bedek huid waar mogelijk, gebruik zonnebrand en vermijd onnodig lang in de volle zon werken.';}
+  else if(uv>=11){level='extreem';text='Extreem UV. Zorg voor maximale zonbescherming en beperk directe zonblootstelling zoveel mogelijk.';}
+  if(temp>=28) text += ' Door de hoge temperatuur: drink extra en plan waar mogelijk een koele pauze.';
+  $('uvTitle').textContent=`UV ${uv.toFixed(1)} · ${level}`;
+  $('uvText').textContent=text;
+}
+
+function renderRouteAdvice(c, h, start){
+  const wind=Number(c.wind_speed_10m)||0;
+  const rain=Number(c.precipitation)||0;
+  const code=Number(c.weather_code);
+  if([95,96,99].includes(code)){
+    $('routeTitle').textContent='Onweer: extra opletten';
+    $('routeText').textContent='Zoek tijdens onweer een veilige schuilplek en blijf weg van open velden en bomen.';
+  }else if(wind>=60){
+    $('routeTitle').textContent='Veel wind';
+    $('routeText').textContent=`Wind rond ${Math.round(wind)} km/u. Let extra op bij open stukken, bruggen en losse voorwerpen.`;
+  }else if(rain>=1 || [61,63,65,80,81,82].includes(code)){
+    $('routeTitle').textContent='Regenkleding meenemen';
+    $('routeText').textContent='Regen verwacht. Neem een waterdichte jas en bescherming voor je spullen mee.';
+  }else if(code===71 || code===73 || code===75 || code===77){
+    $('routeTitle').textContent='Winterse omstandigheden';
+    $('routeText').textContent='Sneeuw of winterse neerslag. Houd rekening met gladheid en pas je snelheid aan.';
+  }else{
+    $('routeTitle').textContent='Normale ronde';
+    $('routeText').textContent='Geen duidelijke zware weersomstandigheid in de actuele weerdata. Blijf de uurverwachting volgen.';
+  }
+}
+
+function setWarningInfo(){
+  $('warningBadge').textContent='KNMI · FRIESLAND';
+  $('warningText').innerHTML='<strong>Officiële waarschuwing</strong>De actuele KNMI-code wordt rechtstreeks op de officiële KNMI-waarschuwingspagina bijgehouden. Open die pagina voor code geel, oranje of rood en de geldigheidsperiode.';
+  $('warningStatus').classList.remove('alert');
+}
+
 function renderWeather(data){
   const c=data.current;
   const info=weatherInfo(c.weather_code);
@@ -149,11 +250,14 @@ function renderWeather(data){
   $('wind').textContent=kmh(c.wind_speed_10m);
   $('humidity').textContent=Math.round(c.relative_humidity_2m)+'%';
   $('precip').textContent=(data.daily.precipitation_sum[0] ?? 0).toFixed(1)+' mm';
-
   const h=data.hourly;
   const now=new Date();
   let start=0;
   while(start<h.time.length && new Date(h.time[start]) < now) start++;
+  renderLayers(Number(c.apparent_temperature), Number(c.wind_speed_10m), Number(c.precipitation));
+  renderUV(Number(c.uv_index), Number(c.temperature_2m));
+  renderRouteAdvice(c, h, start);
+  setWarningInfo();
 
   const count=Math.min(12,h.time.length-start);
   let hourly='';
@@ -212,9 +316,9 @@ async function loadWeather(){
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${state.lat}` +
     `&longitude=${state.lon}` +
-    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m` +
-    `&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m` +
-    `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code` +
+    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,uv_index` +
+    `&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,uv_index` +
+    `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code,uv_index_max` +
     `&timezone=Europe%2FAmsterdam&forecast_days=5`;
 
   try{
