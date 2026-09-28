@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#08111f">
 <meta name="description" content="BuienRadar voor Business Post Caparis">
-<title>BuienRadar · Business Post Caparis</title>
+<title>BuienRadar Post · Business Post Caparis</title>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://tile.openstreetmap.org">
@@ -25,7 +25,7 @@
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 button,input,select{font:inherit}
 button{cursor:pointer}
-.app{min-height:100vh;display:grid;grid-template-columns:360px 1fr;grid-template-rows:auto 1fr}
+.app{min-height:100vh;display:grid;grid-template-columns:360px 1fr;grid-template-rows:1fr}
 .sidebar{background:linear-gradient(180deg,#0b1727,#08121f);border-right:1px solid var(--line);padding:20px;overflow:auto;z-index:10}
 .brand{display:flex;gap:12px;align-items:center;margin-bottom:20px}
 .logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#1687ed,#6ac5ff);font-size:23px;box-shadow:0 8px 24px rgba(67,167,255,.25)}
@@ -59,7 +59,7 @@ h1{font-size:19px;margin:0;letter-spacing:-.3px}
 .hour strong{font-size:14px}
 .hour small{display:block;color:#67b9ff;margin-top:5px}
 .tip{color:var(--muted);font-size:11px;line-height:1.45;margin-top:15px}
-.map-wrap{position:relative;min-width:0;min-height:0}
+.map-wrap{position:relative;min-width:0;min-height:0;height:100%}
 #map{position:absolute;inset:0;background:#cbd5df}
 .topbar{position:absolute;left:18px;right:18px;top:18px;z-index:5;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
 .topbar > *{pointer-events:auto}
@@ -278,6 +278,7 @@ h1{font-size:19px;margin:0;letter-spacing:-.3px}
   function createMap() {
     const base = new ol.layer.Tile({source:new ol.source.XYZ({
       url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      crossOrigin:"anonymous",
       attributions:'© OpenStreetMap contributors'
     })});
     state.radarLayer = new ol.layer.Tile({opacity:.72,visible:false,source:new ol.source.XYZ({url:"about:blank"})});
@@ -305,7 +306,7 @@ h1{font-size:19px;margin:0;letter-spacing:-.3px}
       if(!state.radarFrames.length) throw new Error("Geen radarframes beschikbaar");
       const frame=state.radarFrames[state.radarFrames.length-1];
       const tileUrl=`${d.host}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`;
-      state.radarLayer.setSource(new ol.source.XYZ({url:tileUrl,maxZoom:7,crossOrigin:"anonymous"}));
+      state.radarLayer.setSource(new ol.source.XYZ({url:tileUrl,maxZoom:7,crossOrigin:"anonymous",attributions:"Weather data by RainViewer"}));
       state.radarLayer.setVisible(true);
       $("radarStatus").textContent="Live radar beschikbaar";
       $("radarTime").textContent="Laatste radarbeeld: "+new Date(frame.time*1000).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
@@ -319,7 +320,7 @@ h1{font-size:19px;margin:0;letter-spacing:-.3px}
 
   async function setLocation(lat,lon,name) {
     state.lat=lat; state.lon=lon; state.place=name||"Gekozen locatie";
-    state.map.getView().animate({center:ol.proj.fromLonLat([lat?lon:state.lon,lat]),zoom:11,duration:600});
+    state.map.getView().animate({center:ol.proj.fromLonLat([state.lon,state.lat]),zoom:11,duration:600});
     state.marker.getGeometry().setCoordinates(ol.proj.fromLonLat([state.lon,state.lat]));
     $("locationName").textContent=state.place;
     await loadWeather();
@@ -359,7 +360,9 @@ h1{font-size:19px;margin:0;letter-spacing:-.3px}
   });
 
   createMap();
-  Promise.all([loadWeather(),loadRadar()]).catch(()=>showToast("Een onderdeel van de weerdata kon niet worden geladen."));
+  Promise.allSettled([loadWeather(),loadRadar()]).then(results=>{
+    if(results.some(x=>x.status === "rejected")) showToast("Een externe weerbron reageert niet. Probeer opnieuw te laden.");
+  });
   setInterval(loadWeather,10*60*1000);
   setInterval(loadRadar,5*60*1000);
 })();
