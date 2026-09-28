@@ -5,71 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bezorgweer</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);
---bg:#eef1ee;--card:#fff;--tx:#10231f;--mut:#5b716c;--pri:#54645a;--pri2:#38443d;--acc:#facc15;--bd:#dbe1dc;--bar:#cfdedb;--wet:#5b9bd5;--hv:#0e4f9b}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1a18;--card:#132825;--tx:#e8f3f0;--mut:#93aca6;--bd:#1f3d38;--bar:#24443f}}
-:root[data-theme="dark"]{--bg:#0b1a18;--card:#132825;--tx:#e8f3f0;--mut:#93aca6;--bd:#1f3d38;--bar:#24443f}
+:root{
+  box-sizing:border-box;
+  --bg:#eef3f1;--card:#fff;--tx:#10231f;--mut:#60736e;--pri:#365f56;--pri2:#173b34;
+  --acc:#facc15;--bd:#d9e3df;--bar:#d5e2df;--wet:#5b9bd5;--hv:#174f91;
+  --good:#2f855a;--warn:#d97706;--danger:#c2410c;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#081614;--card:#10231f;--tx:#edf8f5;--mut:#9ab1aa;--bd:#24433d;--bar:#23423d}
+}
+:root[data-theme="dark"]{--bg:#081614;--card:#10231f;--tx:#edf8f5;--mut:#9ab1aa;--bd:#24433d;--bar:#23423d}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
-.hero{background:linear-gradient(160deg,var(--pri),var(--pri2));color:#fff;padding:16px 16px 22px;border-radius:0 0 26px 26px}
-.top{display:flex;justify-content:space-between;align-items:center;font-size:13px}
-.brand{font-weight:800;letter-spacing:1px}.brand span{color:var(--acc)}
-.badge{padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:var(--acc);color:#3b2f00}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--tx);
+  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))
+}
+button{cursor:pointer}
+.hero{
+  background:
+    radial-gradient(circle at 85% 15%,rgba(255,255,255,.16),transparent 28%),
+    linear-gradient(145deg,var(--pri),var(--pri2));
+  color:#fff;padding:18px 16px 24px;border-radius:0 0 28px 28px;
+  box-shadow:0 8px 24px rgba(0,0,0,.10)
+}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.brand{font-weight:900;letter-spacing:1.2px}.brand span{color:var(--acc)}
+.top-actions{display:flex;align-items:center;gap:7px}
+.iconbtn{
+  border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.10);
+  color:#fff;border-radius:10px;padding:7px 9px;font:inherit
+}
+.badge{padding:4px 9px;border-radius:99px;font-size:11px;font-weight:800;background:var(--acc);color:#3b2f00}
 .badge.live{background:#86efac;color:#052e16}
-.big{display:flex;align-items:center;gap:14px;margin-top:14px}
-.big .ico{font-size:64px;line-height:1}
-.big .deg{font-size:56px;font-weight:800;line-height:1}
-.big .txt{font-size:17px;font-weight:600}.big small{display:block;font-weight:400;opacity:.85;font-size:14px}
-.chips{display:flex;gap:8px;margin-top:14px}
-.chips div{flex:1;background:rgba(255,255,255,.14);border-radius:12px;padding:8px;text-align:center;font-size:12px}
-.chips b{display:block;font-size:17px}
-main{max-width:540px;margin:0 auto;padding:14px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px}
-h2{font-size:13px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.7px}
+.big{display:flex;align-items:center;gap:13px;margin-top:17px}
+.big .ico{font-size:62px;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.15))}
+.big .deg{font-size:56px;font-weight:850;line-height:1}
+.big .txt{font-size:17px;font-weight:700}.big small{display:block;font-weight:400;opacity:.82;font-size:13px;margin-top:2px}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:17px}
+.chips div{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.10);border-radius:13px;padding:9px 5px;text-align:center;font-size:11px}
+.chips b{display:block;font-size:16px}
+main{max-width:760px;margin:0 auto;padding:14px}
+.card{
+  background:var(--card);border:1px solid var(--bd);border-radius:19px;padding:15px;
+  margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.035)
+}
+h2{font-size:13px;margin:0 0 11px;color:var(--mut);text-transform:uppercase;letter-spacing:.7px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.section-head h2{margin-bottom:0}
+.smallbtn{
+  border:1px solid var(--bd);background:var(--bg);color:var(--tx);
+  border-radius:10px;padding:7px 10px;font:inherit;font-size:12px;font-weight:650
+}
 .chart{display:flex;align-items:flex-end;gap:5px;height:96px}
 .bar{flex:1;background:var(--bar);border-radius:6px 6px 2px 2px;min-height:5px}
 .bar.w{background:var(--wet)}.bar.h{background:var(--hv)}
 .axis{display:flex;gap:5px;font-size:11px;color:var(--mut);margin-top:6px}.axis span{flex:1;text-align:center}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:10px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
 .tile{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px}
-.tile .e{font-size:30px}.tile b{display:block;margin:4px 0 2px}.tile span{font-size:13px;color:var(--mut)}
+.tile .e{font-size:29px}.tile b{display:block;margin:4px 0 2px}.tile span{font-size:13px;color:var(--mut)}
 .tile.n{background:var(--pri);color:#fff;border-color:var(--pri)}.tile.n span{color:#d6f3ee}
-.tile.n .num{font-size:44px;font-weight:800;line-height:1}
+.tile.n .num{font-size:42px;font-weight:850;line-height:1}
 .stack{display:flex;flex-direction:column;gap:6px}
-.lay{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;background:var(--bg);border-left:6px solid var(--pri);font-size:14px}
+.lay{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--bg);border-left:6px solid var(--pri);font-size:14px}
 .lay b{min-width:66px}
-.tip{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--bd);font-size:14px}.tip:first-of-type{border-top:0}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd)}
-nav button{flex:1;padding:12px 2px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:14px;font-weight:600}
+.tip{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--bd);font-size:14px}.tip:first-of-type{border-top:0}
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:2000;display:flex;gap:8px;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+  background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -6px 20px rgba(0,0,0,.06)
+}
+nav button{flex:1;padding:11px 2px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:13px;font-weight:700}
 nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
 .sc{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
 .sc button{flex:0 0 auto;padding:8px 12px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;font-size:13px}
 .sc button.on{background:var(--acc);border-color:var(--acc);color:#3b2f00;font-weight:700}
-details summary{cursor:pointer;font-weight:600}details p,details li{font-size:14px;color:var(--mut)}
+details summary{cursor:pointer;font-weight:700}details p,details li{font-size:14px;color:var(--mut)}
 .foot{font-size:12px;color:var(--mut);text-align:center;margin:6px 0 12px}
-.wrapT{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px 4px;text-align:left;border-top:1px solid var(--bd)}th{border-top:0;color:var(--mut)}
-.mapbox{height:300px;border-radius:14px;overflow:hidden;background:var(--bg);isolation:isolate}
-.mt{display:flex;gap:8px;margin-bottom:10px}
-.mt button{flex:1;padding:10px 4px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:14px;font-weight:600}
-.mt button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.wrapT{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 4px;text-align:left;border-top:1px solid var(--bd)}th{border-top:0;color:var(--mut)}
+.mapbox{height:520px;border-radius:14px;overflow:hidden;background:var(--bg);isolation:isolate}
 .mi{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);margin-top:8px;gap:8px}
-.mi button{padding:6px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:13px}
-nav{z-index:2000}
+.mi button,.mi a{padding:7px 11px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:13px;text-decoration:none}
 .rc{position:relative;touch-action:pan-y}.rc svg{width:100%;height:auto;display:block}
 .tip{position:absolute;top:0;transform:translateX(-50%);background:var(--tx);color:var(--card);border-radius:8px;padding:4px 10px;font-size:12px;text-align:center;pointer-events:none;white-space:nowrap;display:none}
-.hrs{display:flex;overflow-x:auto;padding-bottom:6px}
-.hc{flex:0 0 auto;min-width:74px;text-align:center;padding:2px 8px;border-left:1px solid var(--bd);font-size:14px}
-.hc:first-child{border-left:0}.hc b{display:block;margin-bottom:8px}.hc .wi{font-size:32px;line-height:1.2;margin-bottom:8px}
-.hc div{margin:6px 0}.hc .pm{color:var(--mut)}
+.hrs{display:flex;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.hc{flex:0 0 auto;min-width:76px;text-align:center;padding:3px 8px;border-left:1px solid var(--bd);font-size:14px}.hc:first-child{border-left:0}
+.hc b{display:block;margin-bottom:7px}.hc .wi{font-size:31px;line-height:1.2;margin-bottom:7px}.hc div{margin:5px 0}.hc .pm{color:var(--mut);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:var(--bg);border-radius:13px;padding:10px;text-align:center}.stat b{display:block;font-size:17px}.stat span{font-size:11px;color:var(--mut)}
+.location-line{font-size:13px;opacity:.82;margin-top:3px}
+.notice{padding:10px 12px;border-radius:12px;background:var(--bg);font-size:13px;color:var(--mut);margin-top:10px}
+@media(max-width:500px){
+  .chips{grid-template-columns:repeat(2,1fr)}
+  .big .ico{font-size:54px}.big .deg{font-size:49px}
+  .grid{gap:8px}.card{padding:13px}
+  .mapbox{height:440px}
+}
+@media(min-width:760px){
+  body{padding-bottom:18px}.hero{border-radius:0 0 34px 34px}.grid{grid-template-columns:repeat(4,1fr)}
+  nav{position:static;max-width:760px;margin:0 auto;background:transparent;border:0;box-shadow:none;padding:0 14px 18px}
+  nav button{background:var(--card)}
+}
+
+.radar-frame-wrap{position:relative;background:#fff}
+.radar-fallback{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:7px;padding:20px;text-align:center;background:var(--card);color:var(--tx);z-index:2
+}
+.radar-fallback span{font-size:13px;color:var(--mut)}
+.radar-fallback a{
+  margin-top:5px;padding:9px 13px;border-radius:10px;background:var(--pri);color:#fff;
+  text-decoration:none;font-weight:700;font-size:13px
+}
 </style>
 </head>
 <body>
 <div class="hero">
- <div class="top"><div class="brand">BEZORG<span>WEER</span></div><div class="badge" id="badge">LADEN</div></div>
- <div class="big"><div class="ico" id="ico"></div><div><div class="deg" id="deg"></div></div><div class="txt" id="h1"></div></div>
- <div class="chips"><div><b id="fl"></b>voelt als</div><div><b id="wd"></b>wind km/u</div><div><b id="gu"></b>stoten km/u</div></div>
+ <div class="top">
+  <div class="brand">BEZORG<span>WEER</span></div>
+  <div class="top-actions"><button class="iconbtn" id="refreshBtn" type="button" aria-label="Ververs weer">↻</button><div class="badge" id="badge">LADEN</div></div>
+</div>
+<div class="location-line" id="locationLine">Weer voor Leeuwarden</div>
+<div class="big"><div class="ico" id="ico"></div><div><div class="deg" id="deg"></div></div><div class="txt" id="h1"></div></div>
+<div class="chips">
+  <div><b id="fl"></b>voelt als</div><div><b id="wd"></b>wind km/u</div>
+  <div><b id="gu"></b>stoten km/u</div><div><b id="rh"></b>luchtvochtigheid</div>
+</div>
 </div>
 <main>
  <div class="card" id="err" hidden><b>Weerdata niet beschikbaar</b><p style="color:var(--mut);font-size:14px" id="errt"></p><button onclick="load()" style="padding:10px 16px;border-radius:10px;border:0;background:var(--pri);color:#fff;font:inherit;font-weight:600">Opnieuw proberen</button></div>
@@ -77,14 +141,40 @@ nav{z-index:2000}
   <p id="sub" style="margin:10px 0 0;font-weight:600"></p></div>
 
  <div class="card"><h2 id="hct">Komende uren</h2><div class="hrs" id="hrs"></div></div>
-
-
- <div class="card"><h2>KNMI neerslagradar</h2>
-  <div class="mapbox" style="height:520px;background:#fff">
-   <iframe id="knmiRadarFrame" title="KNMI neerslagradar" src="https://www.knmi.nl/nederland-nu/weer/actueel-weer/neerslagradar" style="width:100%;height:100%;border:0" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div class="card" id="summaryCard">
+  <div class="section-head"><h2>Vandaag in één oogopslag</h2><button class="smallbtn" id="refreshSmall" type="button">Ververs</button></div>
+  <div class="stats">
+    <div class="stat"><b id="maxTemp">—</b><span>hoogste temp.</span></div>
+    <div class="stat"><b id="rainChance">—</b><span>regen kans</span></div>
+    <div class="stat"><b id="windDir">—</b><span>windrichting</span></div>
   </div>
-  <div class="mi"><span>Officiële KNMI-neerslagradar</span><a href="https://www.knmi.nl/nederland-nu/weer/actueel-weer/neerslagradar" target="_blank" rel="noopener" style="padding:6px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:13px;text-decoration:none">Open KNMI</a></div>
-  <div class="mi" id="mnote">De KNMI-radar wordt iedere vijf minuten vernieuwd.</div>
+  <div class="notice" id="summaryText">Weerdata wordt geladen…</div>
+</div>
+
+
+ <div class="card" id="radarCard">
+  <div class="section-head">
+    <h2>Neerslagradar</h2>
+    <button class="smallbtn" id="radarRefresh" type="button">Radar verversen</button>
+  </div>
+  <div class="mapbox radar-frame-wrap" style="height:520px;background:#fff">
+    <iframe id="radarFrame"
+      title="Neerslagradar voor Leeuwarden"
+      src="https://www.weeronline.nl/widget/radar?id=4056855&circle=true&noAnalytics=true"
+      style="width:100%;height:100%;border:0"
+      loading="eager"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="fullscreen"></iframe>
+    <div class="radar-fallback" id="radarFallback" hidden>
+      <strong>Radar kan niet worden weergegeven.</strong>
+      <span>Open de actuele radar rechtstreeks.</span>
+      <a id="radarFallbackLink" href="https://www.weeronline.nl/regenradar/Leeuwarden/4056855" target="_blank" rel="noopener noreferrer">Open radar ↗</a>
+    </div>
+  </div>
+  <div class="mi"><span>Weeronline neerslagradar · <span id="radarCity">Leeuwarden</span></span>
+    <a id="radarOpen" href="https://www.weeronline.nl/regenradar/Leeuwarden/4056855" target="_blank" rel="noopener noreferrer">Open radar ↗</a>
+  </div>
+  <div class="mi" id="mnote">Radar wordt door Weeronline geleverd en is gekoppeld aan de geselecteerde plaats.</div>
  </div>
 
  <div class="grid" id="tiles"></div>
@@ -104,73 +194,227 @@ nav{z-index:2000}
 <nav id="nav"><button class="on">Leeuwarden</button><button>Heerenveen</button><button>Drachten</button></nav>
 
 <script>
-const P={Leeuwarden:[53.2014,5.7999],Heerenveen:[52.96,5.92],Drachten:[53.1,6.1]};
-let city="Leeuwarden",data=null;
+const P={
+  Leeuwarden:[53.2014,5.7999],
+  Heerenveen:[52.96,5.92],
+  Drachten:[53.1,6.1]
+};
+const RADAR={
+  Leeuwarden:{id:"4056855",slug:"Leeuwarden"},
+  Heerenveen:{id:"4056827",slug:"Heerenveen"},
+  Drachten:{id:"4056923",slug:"Drachten"}
+};
+let city="Leeuwarden",data=null,loading=false;
 const $=id=>document.getElementById(id);
 const lv=v=>v<.1?0:v<1?1:v<4?2:3;
+const fx=v=>String(Number(v||0).toFixed(1)).replace(".",",");
+const dirs=["N","NO","O","ZO","Z","ZW","W","NW"];
+
+function windDir(deg){return dirs[Math.round((Number(deg)||0)/45)%8]}
+
+let radarLoadTimer=null;
+function updateRadar(){
+  const R=RADAR[city]||RADAR.Leeuwarden;
+  const widget=`https://www.weeronline.nl/widget/radar?id=${R.id}&circle=true&noAnalytics=true`;
+  const page=`https://www.weeronline.nl/regenradar/${encodeURIComponent(R.slug)}/${R.id}`;
+  const frame=$("radarFrame");
+  frame.title=`Neerslagradar voor ${R.slug}`;
+  frame.src=widget;
+  $("radarCity").textContent=R.slug;
+  $("radarOpen").href=page;
+  $("radarFallbackLink").href=page;
+  $("radarFallback").hidden=true;
+  frame.dataset.loaded="";
+  if(radarLoadTimer)clearTimeout(radarLoadTimer);
+  radarLoadTimer=setTimeout(()=>{
+    if(frame.dataset.loaded!=="1")$("radarFallback").hidden=false;
+  },12000);
+}
+$("radarFrame").addEventListener("load",()=>{
+  $("radarFrame").dataset.loaded="1";
+  $("radarFallback").hidden=true;
+});
+$("radarFrame").addEventListener("error",()=>{
+  $("radarFallback").hidden=false;
+});
+$("radarRefresh").addEventListener("click",()=>{
+  const frame=$("radarFrame");
+  frame.dataset.loaded="";
+  frame.src=frame.src.split("&_=")[0]+"&_="+Date.now();
+  $("radarFallback").hidden=true;
+});
+updateRadar();
 
 async function load(){
+  if(loading)return;
+  loading=true;
+  $("badge").textContent="LADEN";
+  $("badge").className="badge";
+  $("locationLine").textContent=`Weer voor ${city}`;
   try{
     const [la,lo]=P[city];
-    const c=new AbortController();setTimeout(()=>c.abort(),8000);
-    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,wind_speed_10m,wind_gusts_10m&minutely_15=precipitation&forecast_minutely_15=20&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,is_day&forecast_hours=14&timezone=Europe%2FAmsterdam`,{signal:c.signal});
-    if(!r.ok)throw 0;
-    const j=await r.json(),t=j.minutely_15.time;let s=0;
+    const c=new AbortController();
+    const timer=setTimeout(()=>c.abort(),10000);
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`+
+      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,is_day`+
+      `&minutely_15=precipitation&forecast_minutely_15=20`+
+      `&hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m,is_day`+
+      `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
+      `&forecast_hours=14&forecast_days=1&timezone=Europe%2FAmsterdam`;
+    const r=await fetch(url,{signal:c.signal});
+    clearTimeout(timer);
+    if(!r.ok)throw new Error("Weerdienst gaf geen geldige reactie.");
+    const j=await r.json();
+
+    const t=j.minutely_15.time;
+    let s=0;
     for(let i=0;i<t.length;i++)if(t[i]<=j.current.time)s=i;
     const ix=[...Array(13).keys()].map(k=>s+k).filter(i=>i<t.length);
-    const pr=ix.map(i=>Math.round((j.minutely_15.precipitation[i]||0)*40)/10);
-    const hs=j.hourly;let hi=hs.time.findIndex(x=>x>=j.current.time.slice(0,13)+":00");if(hi<0)hi=0;
-    const hr=[...Array(12).keys()].map(k=>hi+k).filter(i=>i+1<hs.time.length).map(i=>({t:hs.time[i].slice(11,16),temp:Math.round(hs.temperature_2m[i]),p:hs.precipitation[i+1]||0,c:hs.weather_code[i],day:hs.is_day[i],ws:hs.wind_speed_10m[i],wd:hs.wind_direction_10m[i]}));
-    data={t:Math.round(j.current.temperature_2m),w:Math.round(j.current.wind_speed_10m),g:Math.round(j.current.wind_gusts_10m),
-      d:pr.slice(0,8),c:pr,lab:ix.map(i=>t[i].slice(11,16)),h:hr,off:Math.max(0,Math.min(15,(new Date(j.current.time)-new Date(t[ix[0]]))/60000)),time:j.current.time.slice(11,16)};
-    $("err").hidden=true;render();
-  }catch(e){data=null;$("badge").textContent="OFFLINE";$("badge").className="badge";$("err").hidden=false;$("errt").textContent="Geen verbinding met de weerdienst. Controleer je internet en probeer opnieuw."+(e&&e.message?" ("+e.message+")":"");}
+    const pr=ix.map(i=>Math.round((j.minutely_15.precipitation[i]||0)*10)/10);
+
+    const hs=j.hourly;
+    let hi=hs.time.findIndex(x=>x>=j.current.time.slice(0,13)+":00");
+    if(hi<0)hi=0;
+    const hr=[...Array(12).keys()]
+      .map(k=>hi+k)
+      .filter(i=>i<hs.time.length)
+      .map(i=>({
+        t:hs.time[i].slice(11,16),
+        temp:Math.round(hs.temperature_2m[i]),
+        app:Math.round(hs.apparent_temperature[i]),
+        p:hs.precipitation[i]||0,
+        pp:hs.precipitation_probability[i]||0,
+        c:hs.weather_code[i],day:hs.is_day[i],
+        ws:Math.round(hs.wind_speed_10m[i]),
+        wd:hs.wind_direction_10m[i]
+      }));
+
+    const cur=j.current;
+    data={
+      t:Math.round(cur.temperature_2m),
+      feel:Math.round(cur.apparent_temperature),
+      rh:Math.round(cur.relative_humidity_2m),
+      rainNow:cur.precipitation||0,
+      code:cur.weather_code,
+      isDay:cur.is_day,
+      w:Math.round(cur.wind_speed_10m),
+      g:Math.round(cur.wind_gusts_10m),
+      wd:cur.wind_direction_10m,
+      d:pr.slice(0,8),c:pr,lab:ix.map(i=>t[i].slice(11,16)),
+      h:hr,off:Math.max(0,Math.min(15,(new Date(j.current.time)-new Date(t[ix[0]]))/60000)),
+      time:j.current.time.slice(11,16),
+      daily:j.daily
+    };
+    $("err").hidden=true;
+    render();
+  }catch(e){
+    data=null;
+    $("badge").textContent="OFFLINE";
+    $("badge").className="badge";
+    $("err").hidden=false;
+    $("errt").textContent="Geen verbinding met de weerdienst. Controleer je internet en probeer opnieuw.";
+  }finally{
+    loading=false;
+  }
 }
+
 function render(){
-  const D=data,live=true;let feel=Math.round(D.t-D.w*.12),max=Math.max(...D.d),now=D.d[0],L=lv(max);
+  const D=data;
+  const feel=D.feel;
+  const max=Math.max(...D.d,0),now=D.d[0]||0,L=lv(max);
   $("badge").textContent="LIVE";$("badge").className="badge live";
-  $("deg").textContent=D.t+"°";$("fl").textContent=feel+"°";$("wd").textContent=D.w;$("gu").textContent=D.g;
-  let ico=D.t<=0?"❄️":"☀️",h="Droog",sub="Geen regen verwacht de komende 2 uur.";
-  if(now>=.1){ico=now>=4?"⛈️":"🌧️";h="Regen";const e=D.d.findIndex(v=>v<.1);sub=e<0?"Het blijft regenen, ook de komende 2 uur.":"Droog over ca. "+e*15+" minuten.";}
-  else if(max>=.1){ico="🌦️";h="Bui op komst";sub="Regen over ca. "+D.d.findIndex(v=>v>=.1)*15+" minuten.";}
-  else if(feel<7){ico="🥶";h="Droog en koud"}
+  $("deg").textContent=D.t+"°";
+  $("fl").textContent=feel+"°";
+  $("wd").textContent=D.w;
+  $("gu").textContent=D.g;
+  $("rh").textContent=D.rh+"%";
+  $("locationLine").textContent=`Weer voor ${city} · ${D.time}`;
+
+  let ico=wic(D.code,D.isDay),h="Droog",sub="Geen regen verwacht de komende 2 uur.";
+  if(now>=.1){
+    ico=now>=4?"⛈️":"🌧️";h="Regen";
+    const e=D.d.findIndex(v=>v<.1);
+    sub=e<0?"Het blijft regenen, ook de komende 2 uur.":"Droog over ca. "+e*15+" minuten.";
+  }else if(max>=.1){
+    ico="🌦️";h="Bui op komst";
+    const e=D.d.findIndex(v=>v>=.1);
+    sub="Regen over ca. "+(Math.max(1,e)*15)+" minuten.";
+  }else if(feel<7){ico="🥶";h="Droog en koud"}
+  else if(D.w>=30){ico="💨";h="Droog, maar winderig"}
+
   $("ico").textContent=ico;$("h1").textContent=h;$("sub").textContent=sub;
   drawChart(D);drawHours(D);
-  // tegels
-  const rain=[["😎","Geen regenkleding","Het blijft droog."],["🧥","Waterafstotende jas","Voldoende bij lichte regen."],["☔","Regenjas + regenbroek","Bij matige regen ben je snel nat."],["⛈️","Compleet regenpak","Met overschoenen. Schuilen bij zware bui."]][L];
+
+  const rain=[
+    ["😎","Geen regenkleding","Het blijft droog."],
+    ["🧥","Waterafstotende jas","Voldoende bij lichte regen."],
+    ["☔","Regenjas + regenbroek","Bij matige regen ben je snel nat."],
+    ["⛈️","Compleet regenpak","Met overschoenen. Schuilen bij zware bui."]
+  ][L];
+
   let g,gt;
-  if(feel>=12){g="Geen handschoenen";gt="Warm genoeg."}else if(feel>=7){g="Dunne handschoenen";gt="Voorkomt koude vingers."}
-  else if(feel>=2){g="Warme handschoenen";gt="Nog wel gevoel om post te pakken."}else{g="Dikke handschoenen";gt="Met dunne eronder. Warm je handen tussendoor op."}
+  if(feel>=12){g="Geen handschoenen";gt="Warm genoeg."}
+  else if(feel>=7){g="Dunne handschoenen";gt="Voorkomt koude vingers."}
+  else if(feel>=2){g="Warme handschoenen";gt="Nog wel gevoel om post te pakken."}
+  else{g="Dikke handschoenen";gt="Met dunne eronder. Warm je handen tussendoor op."}
+
   const hd=feel<5?["🧣","Muts en sjaal","Bescherm hoofd en nek."]:L>=2?["🧢","Capuchon of pet","Houdt je gezicht droog."]:["😀","Geen extra nodig","Hoofd en nek vrij."];
   const n=feel>=18?1:feel>=12?2:feel>=2?3:4;
-  $("tiles").innerHTML=[rain,["🧤",g,gt],hd].map(x=>`<div class="tile"><div class="e">${x[0]}</div><b>${x[1]}</b><span>${x[2]}</span></div>`).join("")+
-   `<div class="tile n"><div class="num">${n}</div><b>${n===1?"laag":"lagen"}</b><span>bij ${feel}° gevoel</span></div>`;
-  // lagen
-  const all={b:["Laag 1",feel<7?"Thermoshirt, sneldrogend":"Ademend T-shirt"],f:["Laag 2","Fleece of dunne trui"],x:["Extra","Dikke trui of bodywarmer"],j:["Buiten",L>=1?"Regenjas met capuchon":"Winddichte jas"]};
+
+  $("tiles").innerHTML=[rain,["🧤",g,gt],hd]
+    .map(x=>`<div class="tile"><div class="e">${x[0]}</div><b>${x[1]}</b><span>${x[2]}</span></div>`).join("")+
+    `<div class="tile n"><div class="num">${n}</div><b>${n===1?"laag":"lagen"}</b><span>bij ${feel}° gevoel</span></div>`;
+
+  const all={
+    b:["Laag 1",feel<7?"Thermoshirt, sneldrogend":"Ademend T-shirt"],
+    f:["Laag 2","Fleece of dunne trui"],
+    x:["Extra","Dikke trui of bodywarmer"],
+    j:["Buiten",L>=1?"Regenjas met capuchon":"Winddichte jas"]
+  };
   const ls=n===1?[all.b]:n===2?(feel<15?[all.b,all.f].concat(L?[all.j]:[]):[all.b,all.j]):n===3?[all.b,all.f,all.j]:[all.b,all.f,all.x,all.j];
   $("lay").innerHTML=ls.map(x=>`<div class="lay"><b>${x[0]}</b>${x[1]}</div>`).join("");
-  // tips
+
   const tp=[];
   if(L>0)tp.push(["👜","Gebruik de regenhoes op tas of bak en bezorg eerst bij adressen met afdak of balie."]);
-  if(D.g>=50)tp.push(["💨","Harde windstoten: houd losse post vast en fiets voorzichtig."]);else if(D.w>=30)tp.push(["💨","Stevige wind: houd post goed vast."]);
+  if(D.g>=50)tp.push(["💨","Harde windstoten: houd losse post vast en fiets voorzichtig."]);
+  else if(D.w>=30)tp.push(["💨","Stevige wind: houd post goed vast."]);
   if(D.t<=1)tp.push(["⚠️","Kans op gladheid. Fiets rustig, let op bruggen."]);
   if(L>=3)tp.push(["⏱️","Overweeg te schuilen tot de bui voorbij is."]);
   if(!tp.length)tp.push(["✅","Geen bijzonderheden. Fijne ronde!"]);
   $("tips").innerHTML=tp.map(x=>`<div class="tip"><span>${x[0]}</span><span>${x[1]}</span></div>`).join("");
-  $("foot").textContent=`${city}, bijgewerkt ${D.time}. Bron: Open-Meteo (KNMI-model).`;
+
+  const maxT=D.daily?.temperature_2m_max?.[0];
+  const chance=D.daily?.precipitation_probability_max?.[0];
+  $("maxTemp").textContent=maxT==null?"—":Math.round(maxT)+"°";
+  $("rainChance").textContent=chance==null?"—":Math.round(chance)+"%";
+  $("windDir").textContent=windDir(D.wd);
+  $("summaryText").textContent=
+    `Vandaag maximaal ${maxT==null?"—":Math.round(maxT)+"°C"} · maximale regenkans ${chance==null?"—":Math.round(chance)+"%"} · wind ${D.w}`;
+  $("foot").textContent=`${city}, bijgewerkt ${D.time}. Bron: Open-Meteo.`;
 }
-$("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;city=b.textContent;[...$("nav").children].forEach(x=>x.classList.toggle("on",x===b));if(map){map.flyTo({center:[P[city][1],P[city][0]],zoom:7});addMarker()}load()};
+
+$("nav").addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if(!b)return;
+  city=b.textContent.trim();
+  [...$("nav").children].forEach(x=>x.classList.toggle("on",x===b));
+  updateRadar();
+  load();
+});
+
+$("refreshBtn").addEventListener("click",load);
+$("refreshSmall").addEventListener("click",load);
+load();
 
 // ===== GRAFIEK EN UREN =====
-const fx=v=>String(v.toFixed(1)).replace(".",",");
 function drawChart(D){
-  const c=D.c,n=c.length,W=640,H=176,L0=62,R0=10,T=22,B=28,pw=W-L0-R0,ph=H-T-B;
+  const c=D.c,n=Math.max(c.length,1),W=640,H=176,L0=62,R0=10,T=22,B=28,pw=W-L0-R0,ph=H-T-B;
   const X=i=>L0+pw*i/(n-1),Y=v=>T+ph*(1-Math.min(1,Math.sqrt(v/10)));
   let g=[[1,"Licht"],[4,"Matig"],[8,"Zwaar"]].map(([v,l])=>`<line x1="${L0}" x2="${W-R0}" y1="${Y(v)}" y2="${Y(v)}" style="stroke:var(--bd)"/><text x="${L0-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" style="fill:var(--mut)">${l}</text>`).join("");
   g+=`<polygon points="${X(0)},${Y(0)} ${c.map((v,i)=>X(i)+","+Y(v)).join(" ")} ${X(n-1)},${Y(0)}" style="fill:var(--wet)" opacity=".8"/>`;
   g+=`<line x1="${L0}" x2="${W-R0}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--mut)"/>`;
   g+=D.lab.map((l,i)=>i%4===0?`<text x="${X(i)}" y="${H-8}" text-anchor="${i===0?"start":"middle"}" font-size="12" style="fill:var(--tx)">${l}</text>`:"").join("");
-  const nx=X(D.off/15);
+  const nx=X(Math.max(0,Math.min(n-1,D.off/15)));
   g+=`<line x1="${nx}" x2="${nx}" y1="${T}" y2="${Y(0)}" stroke-dasharray="3 3" style="stroke:var(--tx)"/><text x="${nx}" y="${T-6}" text-anchor="middle" font-size="12" style="fill:var(--tx)">Nu</text>`;
   g+=`<line id="cur" y1="${T}" y2="${Y(0)}" stroke-width="2" style="stroke:var(--tx)" visibility="hidden"/><rect id="hit" x="${L0}" y="0" width="${pw}" height="${H}" fill="transparent"/>`;
   $("rc").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg><div class="tip" id="tip"></div>`;
