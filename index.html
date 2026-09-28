@@ -64,7 +64,7 @@ nav{z-index:2000}
 .hc:first-child{border-left:0}.hc b{display:block;margin-bottom:8px}.hc .wi{font-size:32px;line-height:1.2;margin-bottom:8px}
 .hc div{margin:6px 0}.hc .pm{color:var(--mut)}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css">
 </head>
 <body>
 <div class="hero">
@@ -80,10 +80,10 @@ nav{z-index:2000}
  <div class="card"><h2 id="hct">Komende uren</h2><div class="hrs" id="hrs"></div></div>
 
 
- <div class="card"><h2>Regenradar en wolken</h2>
+ <div class="card"><h2>KNMI regenradar en wolken</h2>
  <div class="mt"><button id="mR" class="on">🌧️ Regen</button><button id="mC">☁️ Wolken</button></div>
  <div class="mapbox" id="map"></div>
- <div class="mi"><span id="mtime">Kaart laden…</span><button id="mplay">⏸ Pauze</button></div>
+ <div class="mi"><span id="mtime">KNMI-radar laden…</span><button id="mplay" hidden>⏸ Pauze</button></div>
  <div class="mi" id="mnote"></div></div>
 
  <div class="grid" id="tiles"></div>
@@ -102,7 +102,7 @@ nav{z-index:2000}
 </main>
 <nav id="nav"><button class="on">Leeuwarden</button><button>Heerenveen</button><button>Drachten</button></nav>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.js"></script>
 <script>
 const P={Leeuwarden:[53.2014,5.7999],Heerenveen:[52.96,5.92],Drachten:[53.1,6.1]};
 let city="Leeuwarden",data=null;
@@ -159,7 +159,7 @@ function render(){
   $("tips").innerHTML=tp.map(x=>`<div class="tip"><span>${x[0]}</span><span>${x[1]}</span></div>`).join("");
   $("foot").textContent=`${city}, bijgewerkt ${D.time}. Bron: Open-Meteo (KNMI-model).`;
 }
-$("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;city=b.textContent;[...$("nav").children].forEach(x=>x.classList.toggle("on",x===b));if(map){map.setView(P[city],7);mk.setLatLng(P[city])}load()};
+$("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;city=b.textContent;[...$("nav").children].forEach(x=>x.classList.toggle("on",x===b));if(map){map.flyTo({center:[P[city][1],P[city][0]],zoom:7});addMarker()}load()};
 
 // ===== GRAFIEK EN UREN =====
 const fx=v=>String(v.toFixed(1)).replace(".",",");
@@ -191,43 +191,79 @@ function drawHours(D){
     return `<div class="hc"><b>${i===0?"Nu":x.t}</b><div class="wi">${wic(x.c,x.day)}</div><div>${x.temp}°C</div><div>${dr[Math.round(x.wd/45)%8]}${bf}</div><div class="pm">${fx(x.p)} mm</div></div>`}).join("");
 }
 
-// ===== KAART =====
-const CLOUD_LAYER="dwd:Satellite_meteosat_1km_euat_rgb_day_hrv_and_night_ir108_3h"; // wolkenlaag (DWD Meteosat), pas aan indien nodig
-let map,radar=[],rHost="",rLayer=null,rIdx=0,rTimer=null,cLayer=null,mk,mode="R",playing=true;
+// ===== KAART - MAPLIBRE =====
+const CLOUD_LAYER="dwd:Satellite_meteosat_1km_euat_rgb_day_hrv_and_night_ir108_3h";
+let map=null,radar=[],rHost="",rLayerId=null,rSourceId=null,rIdx=0,rTimer=null,cLayerId="clouds",mk=null,mode="R",playing=true;
 function fmt(t){return new Date(t*1000).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}
 function initMap(){
   if(map)return;
-  if(!window.L){$("mtime").textContent="Kaart niet beschikbaar (Leaflet niet geladen).";return}
-  map=L.map("map").setView(P[city],7);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:12,attribution:"&copy; OpenStreetMap"}).addTo(map);
-  mk=L.circleMarker(P[city],{radius:8,color:"#fff",weight:3,fillColor:"#54645a",fillOpacity:1}).addTo(map);
-  cLayer=L.tileLayer.wms("https://maps.dwd.de/geoserver/dwd/wms",{layers:CLOUD_LAYER,format:"image/png",transparent:true,version:"1.3.0",opacity:.85,attribution:"Satelliet: DWD / EUMETSAT"});
-  cLayer.on("tileerror",()=>{$("mnote").textContent="Wolkenlaag kon niet geladen worden."});
-  loadRadar();setInterval(loadRadar,600000);setMode("R");
+  if(!window.maplibregl){$("mtime").textContent="Kaart niet beschikbaar (MapLibre kon niet laden).";return}
+  map=new maplibregl.Map({
+    container:"map",
+    center:[P[city][1],P[city][0]],
+    zoom:7,
+    style:{
+      version:8,
+      sources:{
+        osm:{type:"raster",tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],tileSize:256,attribution:"&copy; OpenStreetMap contributors"}
+      },
+      layers:[{id:"osm",type:"raster",source:"osm"}]
+    },
+    attributionControl:true
+  });
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
+  map.on("load",()=>{
+    addMarker();
+    loadRadar();
+    setMode("R");
+  });
+  setInterval(loadRadar,600000);
+}
+function addMarker(){
+  if(mk)mk.remove();
+  const el=document.createElement("div");
+  el.style.cssText="width:16px;height:16px;border-radius:50%;background:#54645a;border:3px solid white;box-shadow:0 1px 5px #0008";
+  mk=new maplibregl.Marker({element:el}).setLngLat([P[city][1],P[city][0]]).addTo(map);
 }
 async function loadRadar(){
   try{
     const r=await fetch("https://api.rainviewer.com/public/weather-maps.json");
     const j=await r.json();
     rHost=j.host;radar=[...(j.radar.past||[]),...(j.radar.nowcast||[])];
-    if(mode==="R")showFrame(radar.length-1);
+    if(mode==="R"&&radar.length)showFrame(radar.length-1);
     if(!rTimer&&radar.length)rTimer=setInterval(()=>{if(playing&&mode==="R"&&radar.length)showFrame((rIdx+1)%radar.length)},700);
   }catch(e){$("mnote").textContent="Regenradar kon niet geladen worden."}
 }
 function showFrame(i){
-  if(!radar.length||!map)return;
+  if(!radar.length||!map||!map.isStyleLoaded())return;
   rIdx=i;const f=radar[i];
   const url=rHost+f.path+"/512/{z}/{x}/{y}/2/1_1.png";
-  const nl=L.tileLayer(url,{tileSize:512,zoomOffset:-1,maxNativeZoom:8,maxZoom:12,opacity:.75,attribution:'Radar: <a href="https://www.rainviewer.com/">RainViewer</a>'});
-  nl.addTo(map);
-  if(rLayer)setTimeout(()=>map.removeLayer(rLayer),350);
-  rLayer=nl;
+  if(map.getLayer("radar-layer"))map.removeLayer("radar-layer");
+  if(map.getSource("radar-source"))map.removeSource("radar-source");
+  map.addSource("radar-source",{type:"raster",tiles:[url],tileSize:512,minzoom:0,maxzoom:12});
+  map.addLayer({id:"radar-layer",type:"raster",source:"radar-source",paint:{"raster-opacity":0.75}});
+  rSourceId="radar-source";rLayerId="radar-layer";
   $("mtime").textContent="Radar "+fmt(f.time)+(f.time*1000>Date.now()?" (verwachting)":"");
 }
 function setMode(m){
   mode=m;$("mR").classList.toggle("on",m==="R");$("mC").classList.toggle("on",m==="C");$("mnote").textContent="";
-  if(m==="R"){if(map.hasLayer(cLayer))map.removeLayer(cLayer);$("mplay").hidden=false;if(radar.length)showFrame(radar.length-1)}
-  else{if(rLayer){map.removeLayer(rLayer);rLayer=null}cLayer.addTo(map);$("mplay").hidden=true;$("mtime").textContent="Wolken (satelliet, ca. laatste 15 min)"}
+  if(!map)return;
+  if(m==="R"){
+    if(map.getLayer(cLayerId))map.setLayoutProperty(cLayerId,"visibility","none");
+    $("mplay").hidden=false;
+    if(radar.length)showFrame(radar.length-1);
+  }else{
+    if(map.getLayer("radar-layer"))map.setLayoutProperty("radar-layer","visibility","none");
+    $("mplay").hidden=true;
+    addCloudLayer();
+    $("mtime").textContent="Wolken (satelliet, ca. laatste 15 min)";
+  }
+}
+function addCloudLayer(){
+  if(!map.getSource("cloud-source")){
+    map.addSource("cloud-source",{type:"raster",tiles:["https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.1&request=GetMap&layers="+encodeURIComponent(CLOUD_LAYER)+"&styles=&format=image/png&transparent=true&srs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}"],tileSize:256});
+    map.addLayer({id:cLayerId,type:"raster",source:"cloud-source",paint:{"raster-opacity":0.85}});
+  }else map.setLayoutProperty(cLayerId,"visibility","visible");
 }
 $("mR").onclick=()=>map&&setMode("R");$("mC").onclick=()=>map&&setMode("C");
 $("mplay").onclick=()=>{playing=!playing;$("mplay").textContent=playing?"⏸ Pauze":"▶ Afspelen"};
